@@ -1,9 +1,14 @@
 #define PASSCODE_LENGTH 4
 #define CORRECT_PASSCODE "1234" // Change this to your desired passcode
+#define MAX_COMMANDS 100
 
 char passcode[PASSCODE_LENGTH + 1] = ""; // Buffer to store user input passcode
 bool passcodeEntered = false; // Flag to indicate if passcode has been entered correctly
 
+// Record mode variables
+bool recordMode = false; // Flag to indicate if turret is in record mode
+int recordedCommands[MAX_COMMANDS]; // Array to store recorded commands
+int commandCount = 0; // Counter to keep track of number of recorded commands
 
 //////////////////////////////////////////////////
                 //  LIBRARIES  //
@@ -126,10 +131,59 @@ void addPasscodeDigit(char digit) {
     }
 }
 
+/************************\
+// RECORDING FUNCTIONS //
+\************************/
+
+void startRecording() {
+    recordMode = true;
+    commandCount = 0;
+}
+
+void recordMovement(int command) {
+    // if command is up, down, left, right, or fire, record the command
+    switch ( command ) {
+        case up:
+        case down:
+        case left:
+        case right:
+        case ok:
+            if ( commandCount >= MAX_COMMANDS ) {
+                recordMode = false;
+                return;
+            }
+            recordedCommands[commandCount] = command;
+            commandCount++;
+        break;
+        default:
+            return;
+    }
+}
+
+void playbackRecordedCommands() {
+    for (int i = 0; i < commandCount; i++) {
+        handleCommand(recordedCommands[i]);
+        delay(5);
+    }
+}
+
+void beginRecording() {
+    recordMode = true;
+    commandCount = 0;
+}
+
+void stopRecording() {
+    recordMode = false;
+}
+
 void handleCommand(int command) {
     if((IrReceiver.decodedIRData.flags & IRDATA_FLAGS_IS_REPEAT) && !passcodeEntered){ // this checks to see if the command is a repeat
     Serial.println("DEBOUNCING REPEATED NUMBER - IGNORING INPUT");
     return; //discarding the repeated numbers prevent you from accidentally inputting a number twice
+    }
+
+    if (recordMode) {
+        recordMovement(command);
     }
 
     switch (command) {
@@ -228,12 +282,20 @@ void handleCommand(int command) {
         case cmd7: // Add digit 7 to passcode
             if (!passcodeEntered) {
                 addPasscodeDigit('7');
+                recordMode = true;
+            } else if (!recordMode) {
+                beginRecording();
+            } else {
+                stopRecording();
             }
             break;
 
         case cmd8: // Add digit 8 to passcode
             if (!passcodeEntered) {
                 addPasscodeDigit('8');
+            } else if (!recordMode)
+            {
+                playbackRecordedCommands();
             }
             break;
 
