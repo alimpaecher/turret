@@ -135,9 +135,15 @@ void addPasscodeDigit(char digit) {
 // RECORDING FUNCTIONS //
 \************************/
 
-void startRecording() {
+void beginRecording() {
     recordMode = true;
     commandCount = 0;
+    shakeHeadYes();
+}
+
+void stopRecording() {
+    recordMode = false;
+    shakeHeadNo();
 }
 
 void recordMovement(int command) {
@@ -149,7 +155,7 @@ void recordMovement(int command) {
         case right:
         case ok:
             if ( commandCount >= MAX_COMMANDS ) {
-                recordMode = false;
+                stopRecording();
                 return;
             }
             recordedCommands[commandCount] = command;
@@ -165,15 +171,6 @@ void playbackRecordedCommands() {
         handleCommand(recordedCommands[i]);
         delay(5);
     }
-}
-
-void beginRecording() {
-    recordMode = true;
-    commandCount = 0;
-}
-
-void stopRecording() {
-    recordMode = false;
 }
 
 void handleCommand(int command) {
@@ -276,6 +273,9 @@ void handleCommand(int command) {
         case cmd6: // Add digit 6 to passcode
             if (!passcodeEntered) {
                 addPasscodeDigit('6');
+            } else if ( recordMode ) {
+                // 6 is the stop recording command
+                stopRecording();
             }
             break;
 
@@ -283,12 +283,10 @@ void handleCommand(int command) {
             if (!passcodeEntered) {
                 addPasscodeDigit('7');
             } else if (!recordMode) {
+                // 7 is the start recording command
                 beginRecording();
-            } else {
-                stopRecording();
             }
             break;
-
         case cmd8: // Add digit 8 to passcode
             if (!passcodeEntered) {
                 addPasscodeDigit('8');
@@ -376,12 +374,12 @@ void shakeHeadAndFire() {
     int delayTime = 500;
 
     // right fire
-    rightMove(2)
+    rightMove(2);
     fire();
     delay(delayTime);
 
     // up fire
-    upMove(2)
+    upMove(2);
     fire();
     delay(500);
 
