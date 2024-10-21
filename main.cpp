@@ -374,12 +374,12 @@ void shakeHeadAndFire() {
     int delayTime = 500;
 
     // right fire
-    rightMove(2)
+    rightMove(2);
     fire();
     delay(delayTime);
 
     // up fire
-    upMove(2)
+    upMove(2);
     fire();
     delay(500);
 
