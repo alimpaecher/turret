@@ -282,7 +282,6 @@ void handleCommand(int command) {
         case cmd7: // Add digit 7 to passcode
             if (!passcodeEntered) {
                 addPasscodeDigit('7');
-                recordMode = true;
             } else if (!recordMode) {
                 beginRecording();
             } else {
