@@ -373,22 +373,27 @@ void shakeHeadAndFire() {
     int startAngle = pitchServoVal; // Current position of the pitch servo
     int lastAngle = pitchServoVal;
     int nodAngle = startAngle + 60; // Angle for nodding motion
+    int delayTime = 500;
 
-    for (int i = 0; i < 1; i++) { // Repeat nodding motion three times
-        // rotate right, stop, then rotate left, stop
-        yawServo.write(30);
-        delay(190); // Adjust delay for smoother motion
-        fire();
-        pitchServo.write(30);
-        delay(50);
-        fire();
-        yawServo.write(-30);
-        delay(190); // Adjust delay for smoother motion
-        fire();
-        pitchServo.write(-30);
-        delay(50); // Pause at starting position
-        fire();
-    }
+    // right fire
+    rightMove(2)
+    fire();
+    delay(delayTime);
+
+    // up fire
+    upMove(2)
+    fire();
+    delay(500);
+
+    // left fire
+    leftMove(2)
+    fire();
+    delay(delayTime);
+
+    // down fire
+    downMove(2)
+    fire();
+    delay(delayTime);
 }
 
 void leftMove(int moves){
